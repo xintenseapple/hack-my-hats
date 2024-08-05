@@ -44,9 +44,9 @@ int main(int argc, char *argv[])
 
     signal(SIGINT, interrupt_handler);
     printf("Wrangling has begun...");
-    while(!stop) { // This might take a while...
+    while (!stop) { // This might take a while...
         handle_request();
-        usleep(500);
+        usleep(1000);
     }
 
     Py_DECREF(tophat_client);
