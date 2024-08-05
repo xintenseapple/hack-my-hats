@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     }
 
     signal(SIGINT, interrupt_handler);
-    printf("Wrangling has begun...");
+    printf("Wrangling has begun...\n");
     while (!stop) { // This might take a while...
         handle_request();
         usleep(1000);
