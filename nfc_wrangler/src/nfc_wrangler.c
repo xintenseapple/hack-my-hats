@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 {
     Py_Initialize();
     PyGILState_STATE gil_state = PyGILState_Ensure();
-    tophat_client = get_client("/var/run/hatbox.socket");
+    tophat_client = get_client(DEFAULT_SOCKET_PATH);
 
     if (tophat_client == NULL) {
         fprintf(stderr, "Failed to create tophat client!\n");
@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
     }
 
     signal(SIGINT, interrupt_handler);
+    printf("Wrangling has begun...");
     while(!stop) { // This might take a while...
         handle_request();
         usleep(500);
