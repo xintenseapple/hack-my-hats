@@ -9,8 +9,8 @@
 #include "tophat/devices/nfc_reader.h"
 #include "tophat/devices/neopixel.h"
 
-#define NFC_DEVICE_ID 0x1
-#define NEOPIXEL_DEVICE_ID 0x2
+#define NFC_DEVICE_NAME "nfc_reader"
+#define NEOPIXEL_DEVICE_NAME "neopixels"
 
 static PyObject *tophat_client;
 static bool stop = false;
@@ -82,7 +82,7 @@ void check_lights(char* flag_token)
         if (command_pyobj == NULL) {
             fprintf(stderr, "Failed to create command!\n");
         } else {
-            Py_DECREF(send_command(tophat_client, NEOPIXEL_DEVICE_ID, command_pyobj));
+            Py_DECREF(send_command(tophat_client, NEOPIXEL_DEVICE_NAME, command_pyobj));
         }
 
         Py_DECREF(command_pyobj);
@@ -126,7 +126,7 @@ void run_lights() {
         if (command_pyobj == NULL) {
             fprintf(stderr, "Failed to create command!\n");
         } else {
-            Py_DECREF(send_command(tophat_client, NEOPIXEL_DEVICE_ID, command_pyobj));
+            Py_DECREF(send_command(tophat_client, NEOPIXEL_DEVICE_NAME, command_pyobj));
         }
 
         Py_DECREF(command_pyobj);
@@ -182,7 +182,7 @@ void handle_request() {
         return;
     }
 
-    PyObject *result_pyobj = send_command(tophat_client, NFC_DEVICE_ID, command_pyobj);
+    PyObject *result_pyobj = send_command(tophat_client, NFC_DEVICE_NAME, command_pyobj);
     if (result_pyobj == NULL) {
         fprintf(stderr, "Failed to send command!\n");
         return;
