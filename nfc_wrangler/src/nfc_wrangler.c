@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     printf("Wrangling has begun...\n");
     while (!stop) { // This might take a while...
         handle_request();
-        usleep(1000);
+        usleep(2000);
     }
 
     Py_DECREF(tophat_client);
@@ -174,7 +174,6 @@ void handle_request() {
     char flag_buf[11] = {0};
 
     printf("Awaiting connection...\n");
-    fflush(stdout);
 
     PyObject *command_pyobj = create_read_data_command();
     if (command_pyobj == NULL) {
@@ -190,7 +189,8 @@ void handle_request() {
 
     Py_DECREF(command_pyobj);
 
-    printf("Handling new connection\n");
+    printf("Handling new connection...\n");
+    fflush(stdout);
 
     ssize_t data_len = PyByteArray_Size(result_pyobj);
     char *raw_nfc_data = PyByteArray_AsString(result_pyobj);
