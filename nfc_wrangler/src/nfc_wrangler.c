@@ -113,7 +113,7 @@ void run_lights() {
     rainbow_wave = Rainbow cycle across each LED
     */
 
-    printf("is_dev: %#x\na_hacker: %#x\n");
+    printf("is_dev: %#hhx\na_hacker: %#hhx\n");
     fflush(stdout);
     if (is_dev && !a_hacker) {
         // Partner, if you got this far, and like hackin this much
