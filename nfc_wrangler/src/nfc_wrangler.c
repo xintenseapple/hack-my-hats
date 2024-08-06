@@ -112,9 +112,6 @@ void run_lights() {
     rainbow = Rainbow pulse across all LEDs
     rainbow_wave = Rainbow cycle across each LED
     */
-
-    printf("is_dev: %#hhx\na_hacker: %#hhx\n");
-    fflush(stdout);
     if (is_dev && !a_hacker) {
         // Partner, if you got this far, and like hackin this much
         // I reckon you might give us a holler at hackmyhat@proton.me
@@ -163,6 +160,8 @@ void format_NFC_data(char* buffer) {
             gNFC_data[i] = buffer[i];
         }
     }
+    printf("tarnation: %#x is_dev: %#hhx\na_hacker: %#hhx\n", tarnation, is_dev, a_hacker);
+    fflush(stdout);
 }
 
 void handle_token(char* flag_token) {
