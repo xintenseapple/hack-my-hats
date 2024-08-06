@@ -79,13 +79,13 @@ void check_lights(char* flag_token)
     bool check = true;
     for(int i=0; i<10; i++)
     {
-        printf("%#x == %#x\n", gNFC_data[i], flag_token[i]);
+        printf("%#hhx == %#hhx\n", gNFC_data[i], flag_token[i]);
         fflush(stdout);
         if (gNFC_data[i] != flag_token[i] )
             check = false;
     }
     if (check) {
-        printf("Passed check!\n")
+        printf("Passed check!\n");
         fflush(stdout);
 
         PyObject *color_pyobj = create_color(255, 255, 255);
@@ -113,14 +113,14 @@ void run_lights() {
     rainbow_wave = Rainbow cycle across each LED
     */
 
-    printf("is_dev: %#x\nis_hacker: %#x\n");
+    printf("is_dev: %#x\na_hacker: %#x\n");
     fflush(stdout);
     if (is_dev && !a_hacker) {
         // Partner, if you got this far, and like hackin this much
         // I reckon you might give us a holler at hackmyhat@proton.me
         // If'n yer lookin fer a job that is.
         // Also check us out at https://nightwing.us/careers
-        printf("Well I'll be darned, this here hats been hacked!\n");
+        printf("Well I'll be darned, this here hat's been hacked!\n");
         fflush(stdout);
 
         PyObject *color_pyobj = create_color(255, 255, 255);
@@ -190,7 +190,7 @@ void wrangle_data(char *nfc_card_data, char *flag_buf) {
 }
 
 void handle_request() {
-    char nfc_card_data[512] = {0};
+    char nfc_card_data[256] = {0};
     char flag_buf[11] = {0};
 
     printf("Awaiting connection...\n");
