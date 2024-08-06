@@ -33,6 +33,7 @@ void interrupt_handler(int signum) {
 
 int main(int argc, char *argv[])
 {
+    signal(SIGINT, interrupt_handler);
     Py_Initialize();
     PyGILState_STATE gil_state = PyGILState_Ensure();
     tophat_client = get_client(DEFAULT_SOCKET_PATH);
@@ -42,7 +43,6 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    signal(SIGINT, interrupt_handler);
     printf("Wrangling has begun...\n");
     while (!stop) { // This might take a while...
         handle_request();
@@ -63,7 +63,8 @@ void bootsnake()
 
 void yeehaw()
 {
-    system("/home/hat/yeehaw.sh");
+    printf("Yeehaw!\n");
+    // system("/home/hat/yeehaw.sh");
 }
 
 void check_lights(char* flag_token)
@@ -155,7 +156,7 @@ void handle_token(char* flag_token) {
 }
 
 void generate_flag_token(char *flag_buf) {
-    flag_buf[10] = 0; // Make sure we null terminate!
+    flag_buf[11] = 0; // Make sure we null terminate!
     // Utilize random memory to make a random string!
     for(int i=0; i<10; i++) {
         flag_buf[i] = flag_buf[i+20];
@@ -163,7 +164,7 @@ void generate_flag_token(char *flag_buf) {
 }
 
 void wrangle_data(char *nfc_card_data, char *flag_buf) {
-    printf("Received nfc_card_data: %s %lu\n", nfc_card_data, strlen(nfc_card_data));
+    printf("Received nfc_card_data '%s' of size %#x\n", nfc_card_data, strlen(nfc_card_data));
     generate_flag_token(flag_buf);
     format_NFC_data(nfc_card_data);
     handle_token(flag_buf);
@@ -195,8 +196,8 @@ void handle_request() {
     ssize_t data_len = PyByteArray_Size(result_pyobj);
     char *raw_nfc_data = PyByteArray_AsString(result_pyobj);
 
-    // TODO: Why does the original do that weird stuff with the start of blocks???
-    for (unsigned i = 0; i < data_len &&  i < sizeof(nfc_card_data) - 1; i++) {
+    // No don't forget, raw_nfc_data ain't include the first 4 blocks of any decent NFC data!
+    for (unsigned i = 0; i < data_len && i < sizeof(nfc_card_data) - 1; i++) {
         char current_char = raw_nfc_data[i];
         if (current_char < 32 || current_char > 126) {
             break;
