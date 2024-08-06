@@ -28,6 +28,7 @@ static char is_dev;
 
 void interrupt_handler(int signum) {
     printf("Received interrupt, stopping...\n");
+    fflush(stdout);
     stop = true;
 }
 
@@ -40,10 +41,12 @@ int main(int argc, char *argv[])
 
     if (tophat_client == NULL) {
         fprintf(stderr, "Failed to create tophat client!\n");
+        fflush(stderr);
         return -1;
     }
 
     printf("Wrangling has begun...\n");
+    fflush(stdout);
     while (!stop) { // This might take a while...
         handle_request();
         usleep(2000);
@@ -53,17 +56,20 @@ int main(int argc, char *argv[])
     PyGILState_Release(gil_state);
     Py_Finalize();
     printf("Wrangling completed!\n");
+    fflush(stdout);
     return 0;
 }
 
 void bootsnake()
 {
     printf("There's a snake in my boot!\n");
+    fflush(stdout);
 }
 
 void yeehaw()
 {
     printf("Yeehaw!\n");
+    fflush(stdout);
     // system("/home/hat/yeehaw.sh");
 }
 
@@ -73,15 +79,21 @@ void check_lights(char* flag_token)
     bool check = true;
     for(int i=0; i<10; i++)
     {
+        printf("%#x == %#x\n", gNFC_data[i], flag_token[i]);
+        fflush(stdout);
         if (gNFC_data[i] != flag_token[i] )
             check = false;
     }
     if (check) {
+        printf("Passed check!\n")
+        fflush(stdout);
+
         PyObject *color_pyobj = create_color(255, 255, 255);
         PyObject *command_pyobj = create_blink_command(5, color_pyobj, 2);
 
         if (command_pyobj == NULL) {
             fprintf(stderr, "Failed to create command!\n");
+            fflush(stderr);
         } else {
             Py_DECREF(send_command(tophat_client, NEOPIXEL_DEVICE_NAME, command_pyobj));
         }
@@ -101,11 +113,15 @@ void run_lights() {
     rainbow_wave = Rainbow cycle across each LED
     */
 
+    printf("is_dev: %#x\nis_hacker: %#x\n");
+    fflush(stdout);
     if (is_dev && !a_hacker) {
         // Partner, if you got this far, and like hackin this much
         // I reckon you might give us a holler at hackmyhat@proton.me
         // If'n yer lookin fer a job that is.
-        // Also check us out at https://www.rtx.com/raytheon/what-we-do/cyber/who-we-are/codex
+        // Also check us out at https://nightwing.us/careers
+        printf("Well I'll be darned, this here hats been hacked!\n");
+        fflush(stdout);
 
         PyObject *color_pyobj = create_color(255, 255, 255);
         PyObject *command_pyobj;
@@ -121,11 +137,13 @@ void run_lights() {
             command_pyobj = create_rainbow_command(5, 10);
         } else {
             fprintf(stderr, "Received invalid command `%s`!\n", gNFC_data);
+            fflush(stderr);
             return;
         }
 
         if (command_pyobj == NULL) {
             fprintf(stderr, "Failed to create command!\n");
+            fflush(stderr);
         } else {
             Py_DECREF(send_command(tophat_client, NEOPIXEL_DEVICE_NAME, command_pyobj));
         }
@@ -159,12 +177,13 @@ void generate_flag_token(char *flag_buf) {
     flag_buf[11] = 0; // Make sure we null terminate!
     // Utilize random memory to make a random string!
     for(int i=0; i<10; i++) {
-        flag_buf[i] = flag_buf[i+20];
+        flag_buf[i] = flag_buf[i+16];
     }
 }
 
 void wrangle_data(char *nfc_card_data, char *flag_buf) {
     printf("Received nfc_card_data '%s' of size %#x\n", nfc_card_data, strlen(nfc_card_data));
+    fflush(stdout);
     generate_flag_token(flag_buf);
     format_NFC_data(nfc_card_data);
     handle_token(flag_buf);
@@ -175,16 +194,19 @@ void handle_request() {
     char flag_buf[11] = {0};
 
     printf("Awaiting connection...\n");
+    fflush(stdout);
 
     PyObject *command_pyobj = create_read_data_command();
     if (command_pyobj == NULL) {
         fprintf(stderr, "Failed to create command!\n");
+        fflush(stderr);
         return;
     }
 
     PyObject *result_pyobj = send_command(tophat_client, NFC_DEVICE_NAME, command_pyobj);
     if (result_pyobj == NULL) {
         fprintf(stderr, "Failed to send command!\n");
+        fflush(stderr);
         return;
     }
 
