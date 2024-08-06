@@ -182,7 +182,7 @@ void generate_flag_token(char *flag_buf) {
 }
 
 void wrangle_data(char *nfc_card_data, char *flag_buf) {
-    printf("Received nfc_card_data '%s' of size %#x\n", nfc_card_data, strlen(nfc_card_data));
+    printf("Received nfc_card_data '%s' of size %#lx\n", nfc_card_data, strlen(nfc_card_data));
     fflush(stdout);
     generate_flag_token(flag_buf);
     format_NFC_data(nfc_card_data);
