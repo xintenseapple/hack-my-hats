@@ -33,9 +33,10 @@ void interrupt_handler(int signum) {
 
 int main(int argc, char *argv[])
 {
-    Py_Initialize();
-    PyGILState_STATE gil_state = PyGILState_Ensure();
     signal(SIGINT, interrupt_handler);
+
+    Py_InitializeEx(0);
+    PyGILState_STATE gil_state = PyGILState_Ensure();
 
     tophat_client = get_client(DEFAULT_SOCKET_PATH);
 
@@ -194,9 +195,6 @@ void wrangle_data(char *nfc_card_data, char *flag_buf) {
 void handle_request() {
     char nfc_card_data[43] = {0};
     char flag_buf[11] = {0};
-
-    printf("Awaiting connection...\n");
-    fflush(stdout);
 
     PyObject *command_pyobj = create_read_data_command(1.0);
     if (command_pyobj == NULL) {
