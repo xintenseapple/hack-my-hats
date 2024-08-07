@@ -158,7 +158,7 @@ void format_NFC_data(char* buffer) {
         }
         gNFC_data[i] = c;
     }
-    printf("tarnation: %#x\nis_dev: %#hhx\na_hacker: %#hhx\n", tarnation, is_dev, a_hacker);
+    printf("tarnation: %#lx\nis_dev: %#hhx\na_hacker: %#hhx\n", tarnation, is_dev, a_hacker);
     fflush(stdout);
 }
 
