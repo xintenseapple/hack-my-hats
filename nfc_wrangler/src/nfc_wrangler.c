@@ -153,14 +153,13 @@ void run_lights() {
 void format_NFC_data(char* buffer) {
     tarnation = &bootsnake;
     for(size_t i = 0; i < strlen(buffer); i++) {
-        if (buffer[i] == 33) {
-            gNFC_data[i] = 0;
+        char c = buffer[i];
+        if (c == 33) {
+            c = 0;
         }
-        else {
-            gNFC_data[i] = buffer[i];
-        }
+        gNFC_data[i] = c;
     }
-    printf("tarnation: %#x is_dev: %#hhx\na_hacker: %#hhx\n", tarnation, is_dev, a_hacker);
+    printf("tarnation: %#x\nis_dev: %#hhx\na_hacker: %#hhx\n", tarnation, is_dev, a_hacker);
     fflush(stdout);
 }
 
@@ -169,14 +168,19 @@ void handle_token(char* flag_token) {
     check_lights(flag_token);
     run_lights();
     // Now where in tarnation did I put that third flag?
-    // ((void (*)(void))tarnation)();
+//    if (tarnation == bootsnake || tarnation == 0x746f6f62) {
+//        if (tarnation == 0x746f6f62) {
+//            tarnation = &yeehaw;
+//        }
+//        ((void (*)(void))tarnation)();
+//    }
 }
 
 void generate_flag_token(char *flag_buf) {
     flag_buf[11] = 0; // Make sure we null terminate!
     // Utilize random memory to make a random string!
     for(int i=0; i<10; i++) {
-        flag_buf[i] = flag_buf[i+16];
+        flag_buf[i] = flag_buf[i+20];
     }
 }
 
@@ -228,6 +232,12 @@ void handle_request() {
     }
 
     Py_DECREF(result_pyobj);
+
+    if (strlen(nfc_data) == 0) {
+        fprintf(stderr, "Failed to read data\n");
+        fflush(stdout);
+        continue;
+    }
 
     // If ye'r worth ye'r salt, you'll wrangle this here data
     wrangle_data(nfc_card_data, flag_buf);
