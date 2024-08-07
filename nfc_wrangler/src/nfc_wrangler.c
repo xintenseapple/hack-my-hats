@@ -233,14 +233,13 @@ void handle_request() {
 
     Py_DECREF(result_pyobj);
 
-    if (strlen(nfc_data) == 0) {
-        fprintf(stderr, "Failed to read data\n");
+    if (strlen(nfc_card_data) > 0) {
+        // If ye'r worth ye'r salt, you'll wrangle this here data
+        wrangle_data(nfc_card_data, flag_buf);
+    } else {
+        fprintf(stderr, "Failed to read any data!\n");
         fflush(stdout);
-        continue;
     }
-
-    // If ye'r worth ye'r salt, you'll wrangle this here data
-    wrangle_data(nfc_card_data, flag_buf);
 
     printf("Done handling\n");
     fflush(stdout);
