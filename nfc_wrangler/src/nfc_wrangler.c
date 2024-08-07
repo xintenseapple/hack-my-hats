@@ -49,7 +49,6 @@ int main(int argc, char *argv[])
     fflush(stdout);
     while (!stop) { // This might take a while...
         handle_request();
-        usleep(2000);
     }
 
     Py_DECREF(tophat_client);
@@ -199,7 +198,7 @@ void handle_request() {
     printf("Awaiting connection...\n");
     fflush(stdout);
 
-    PyObject *command_pyobj = create_read_data_command();
+    PyObject *command_pyobj = create_read_data_command(1.0);
     if (command_pyobj == NULL) {
         fprintf(stderr, "Failed to create command!\n");
         fflush(stderr);
@@ -215,13 +214,17 @@ void handle_request() {
 
     Py_DECREF(command_pyobj);
 
+    ssize_t data_len = PyByteArray_Size(result_pyobj);
+    if (data_len == 0) {
+        Py_DECREF(result_pyobj);
+        return;
+    }
+
     printf("Handling new connection...\n");
     fflush(stdout);
 
-    ssize_t data_len = PyByteArray_Size(result_pyobj);
-    char *raw_nfc_data = PyByteArray_AsString(result_pyobj);
-
     // No don't forget, raw_nfc_data ain't include the first 4 blocks of any decent NFC data!
+    char *raw_nfc_data = PyByteArray_AsString(result_pyobj);
     for (unsigned i = 0; i < data_len && i < sizeof(nfc_card_data) - 1; i++) {
         char current_char = raw_nfc_data[i];
         if (current_char < 32 || current_char > 126) {
@@ -233,13 +236,7 @@ void handle_request() {
 
     Py_DECREF(result_pyobj);
 
-    if (strlen(nfc_card_data) > 0) {
-        // If ye'r worth ye'r salt, you'll wrangle this here data
-        wrangle_data(nfc_card_data, flag_buf);
-    } else {
-        fprintf(stderr, "Failed to read any data!\n");
-        fflush(stdout);
-    }
+    wrangle_data(nfc_card_data, flag_buf);
 
     printf("Done handling\n");
     fflush(stdout);
