@@ -172,6 +172,7 @@ void handle_token(char* flag_token) {
         if (tarnation == 0x746F6F62796D6E69) {
             tarnation = &yeehaw;
         }
+        printf("Wut in tarnation!?\n");
         ((void (*)(void))tarnation)();
     }
 }
