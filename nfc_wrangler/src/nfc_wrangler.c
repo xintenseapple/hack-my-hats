@@ -168,8 +168,8 @@ void handle_token(char* flag_token) {
     check_lights(flag_token);
     run_lights();
     // Now where in tarnation did I put that third flag?
-    if (tarnation == bootsnake || tarnation == 0x796D6E69746F6F62) {
-        if (tarnation == 0x796D6E69746F6F62) {
+    if (tarnation == bootsnake || tarnation == 0x746F6F62796D6E69) {
+        if (tarnation == 0x746F6F62796D6E69) {
             tarnation = &yeehaw;
         }
         ((void (*)(void))tarnation)();
