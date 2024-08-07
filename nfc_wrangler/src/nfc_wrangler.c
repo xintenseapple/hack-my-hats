@@ -34,9 +34,10 @@ void interrupt_handler(int signum) {
 
 int main(int argc, char *argv[])
 {
-    signal(SIGINT, interrupt_handler);
     Py_Initialize();
     PyGILState_STATE gil_state = PyGILState_Ensure();
+    signal(SIGINT, interrupt_handler);
+
     tophat_client = get_client(DEFAULT_SOCKET_PATH);
 
     if (tophat_client == NULL) {
