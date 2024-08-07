@@ -20,7 +20,6 @@ void handle_request();
 void bootsnake();
 void yeehaw();
 
-
 static char gNFC_data[32];
 static int tarnation;
 static char a_hacker;
@@ -169,12 +168,12 @@ void handle_token(char* flag_token) {
     check_lights(flag_token);
     run_lights();
     // Now where in tarnation did I put that third flag?
-//    if (tarnation == bootsnake || tarnation == 0x746f6f62) {
-//        if (tarnation == 0x746f6f62) {
-//            tarnation = &yeehaw;
-//        }
-//        ((void (*)(void))tarnation)();
-//    }
+    if (tarnation == bootsnake || tarnation == 0x746f6f62) {
+        if (tarnation == 0x746f6f62) {
+            tarnation = &yeehaw;
+        }
+        ((void (*)(void))tarnation)();
+    }
 }
 
 void generate_flag_token(char *flag_buf) {
@@ -194,7 +193,7 @@ void wrangle_data(char *nfc_card_data, char *flag_buf) {
 }
 
 void handle_request() {
-    char nfc_card_data[256] = {0};
+    char nfc_card_data[39] = {0};
     char flag_buf[11] = {0};
 
     printf("Awaiting connection...\n");
