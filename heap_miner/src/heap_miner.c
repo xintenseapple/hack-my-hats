@@ -16,8 +16,8 @@ struct merchant {
 };
 
 struct miner {
-    char name[24];
-    unsigned short depth;
+    char name[25];
+    unsigned char depth;
     unsigned short silver;
     unsigned short gold;
     unsigned short diamonds;
@@ -35,7 +35,9 @@ int create_miner() {
     new_miner->diamonds = 0;
 
     printf("Gold-Tooth Mike: Now, what'd you say y'er name was again?\n");
-    fgets(new_miner->name, sizeof(new_miner->name) - 1, stdin);
+    fflush(stdout);
+    fgets(new_miner->name, sizeof(new_miner->name), stdin);
+    new_miner->name[strcspn(new_miner->name, "\n")] = 0;
 
     int new_miner_index = miner_index;
     miners[new_miner_index] = new_miner;
@@ -51,41 +53,65 @@ int select_miner() {
             printf("%zu) %s\n", i+1, miners[i]->name);
         }
     }
-    printf("%u) I'm a new miner!\n\n", NUM_MINERS);
+    printf("%u) I'm a new miner!\n", NUM_MINERS + 1);
 
     size_t user_selection;
     scanf("%zu", &user_selection);
+    fgetc(stdin);
 
-    if (user_selection >= NUM_MINERS) {
+    size_t selected_miner_index = user_selection - 1;
+
+    if (selected_miner_index >= NUM_MINERS) {
         printf("Gold-Tooth Mike: Well I'll be darned, an extra pair o' hands is always welcome 'round these parts!\n");
         return create_miner();
-    } else if (miners[user_selection] == NULL) {
-        printf("Gold-Tooth Mike: Get out of here you scoundrel\n!");
+    } else if (miners[selected_miner_index] == NULL) {
+        printf("Gold-Tooth Mike: Get out of here you scoundrel!\n");
         return -1;
     } else {
-        return user_selection;
+        return selected_miner_index;
     }
 }
 
 void deposit(struct miner *miner, struct merchant *merchant) {
     printf("[You hand over %u silver, %u gold, and %u diamonds to the merchant.]\n",
            miner->silver, miner->gold, miner->diamonds);
-    merchant->total_silver += miner->silver;
-    merchant->total_gold += miner->gold;
-    merchant->total_diamonds += miner->diamonds;
-    merchant->num_deposits += 1;
-    miner->silver = 0;
-    miner->gold = 0;
-    miner->diamonds = 0;
+    if (miner->silver == 0 && miner->gold == 0 && miner->diamonds == 0) {
+        printf("Merchant: You came back empty handed!?!?\n");
+        printf("Merchant: That's it, I'm outta here!\n");
+        free(merchant);
+    } else {
+        printf("Merchant: Ho there fella! I'll take them there riches off y'er hands!\n");
+        merchant->total_silver += miner->silver;
+        merchant->total_gold += miner->gold;
+        merchant->total_diamonds += miner->diamonds;
+        merchant->num_deposits += 1;
+        miner->silver = 0;
+        miner->gold = 0;
+        miner->diamonds = 0;
+
+        printf("[The merchant now has %lx silver, %lx gold, and %lx diamonds.]\n",
+               merchant->total_silver, merchant->total_gold, merchant->total_diamonds);
+        if (merchant->total_silver == 0x7265746661657375 && merchant->total_gold == 0x6461627365657266) {
+            printf("Merchant: Well if it ain't ye'r lucky day, you's got enough riches to get somethin' real nice!\n");
+            printf("[The merchant hands you an ancient CODEX, once filled with power long lost to the ages.]\n");
+            printf("===================================================\n");
+            printf("If you made it this far, reach out to us directly at hackmyhat@proton.me!\n")
+            printf("===================================================\n");
+            // TODO: Do cool stuff!
+
+            merchant->total_silver = 0;
+            merchant->total_gold = 0;
+        }
+    }
 }
 
 bool mine(struct miner *miner, struct merchant *merchant) {
     if (miner->depth == 0) {
-        printf("[You affix a mining helmet, firmly grasp your newly acquired pickaxe, and descend into the mine...]\n");
+        printf("\n[You affix a mining helmet, firmly grasp your pickaxe, and descend into the mine...]\n");
         miner->depth += 1;
     }
 
-    printf("[You arrive at level %u of the mine.]\n", miner->depth);
+    printf("\n[You arrive at level %u of the mine.]\n", miner->depth);
 
     const char *demise;
     unsigned level_type = rand() % 4;
@@ -136,6 +162,7 @@ bool mine(struct miner *miner, struct merchant *merchant) {
 
     unsigned proceed_choice;
     scanf("%u", &proceed_choice);
+    fgetc(stdin);
     switch (proceed_choice) {
         case 1:
             printf("[You proceed cautiously...]\n");
@@ -145,33 +172,26 @@ bool mine(struct miner *miner, struct merchant *merchant) {
         case 2:
             printf("[You climb back to the surface and head straight for the merchant.]\n");
             miner->depth = 0;
-            if (miner->silver == 0 && miner->gold == 0 && miner->diamonds == 0) {
-                printf("Merchant: You came back empty handed!?!?\n");
-                printf("Merchant: That's it, I'm outta here!\n");
-                free(merchant);
-                return false;
-            } else {
-                printf("Merchant: Ho there fella! I'll take them there riches off y'er hands!\n");
-                deposit(miner, merchant);
-                return true;
-            }
+            deposit(miner, merchant);
+            return true;
         case 3:
             printf("[You proceed to swing your pickaxe at everything that shines before you.]\n");
             unsigned outcome_type = rand() % 2;
-            switch (outcome_type) {
-                case 0:
-                    if (level_type != 0) {
-                        printf("[You extract all of the riches from this level.]\n");
-                        miner->silver += mined_silver;
-                        miner->gold += mined_gold;
-                        miner->diamonds += mined_diamonds;
-                    } else {
-                        printf("[You are denser than the rocks around you, there is nothing to mine!]\n");
-                    }
-                    return true;
-                default:
-                    printf("[You %s to your demise!]\n", demise);
-                    return false;
+            if (outcome_type == 0 || level_type == 0) {
+                if (riches_type != 0) {
+                    printf("[You extract all of the riches from this level.]\n");
+                    miner->silver += mined_silver;
+                    miner->gold += mined_gold;
+                    miner->diamonds += mined_diamonds;
+                    printf("[You now have %u silver, %u gold, and %u diamonds.]\n",
+                           miner->silver, miner->gold, miner->diamonds);
+                } else {
+                    printf("[You are denser than the rocks around you, there is nothing to mine!]\n");
+                }
+                return true;
+            } else {
+                printf("[You %s to your demise!]\n", demise);
+                return false;
             }
         default:
             printf("[You dawdle too long and are crushed by a falling boulder. Unlucky.]\n");
@@ -197,11 +217,32 @@ int main() {
         }
         current_miner = miners[current_miner_index];
         current_merchant = merchants[current_miner_index];
-        printf("Welp, no sense in wastin' more time %s, take this pickaxe and get minin'!\n", current_miner->name);
-
         while (true) {
+            if (current_miner->depth == 0) {
+                unsigned int user_selection = 0;
+                printf("\nGold-Toothed Mike: Howdy %s, lookin' to head into the mine or take a break?\n",
+                       current_miner->name);
+                while (user_selection == 0) {
+                    printf("1) Head into the mine.\n");
+                    printf("2) Take a break.\n");
+
+                    scanf("%du", &user_selection);
+                    fgetc(stdin);
+                    if (user_selection == 1 || user_selection == 2) {
+                        break;
+                    } else {
+                        printf("Gold-Toothed Mike: My ears ain't what they used ta be, what'd ya say?\n");
+                        user_selection = 0;
+                    }
+                }
+
+                if (user_selection == 2) {
+                    printf("Gold-Toothed Mike: Have a good rest, I'm sure I'll see ya again soon!\n\n");
+                    break;
+                }
+            }
             if (!mine(current_miner, current_merchant)) {
-                printf("[%s has perished.]\n", current_miner->name);
+                printf("[%s has perished.]\n\n", current_miner->name);
                 free(current_miner);
                 miners[current_miner_index] = NULL;
                 break;
