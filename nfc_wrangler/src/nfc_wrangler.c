@@ -190,7 +190,7 @@ void handle_request() {
     char nfc_card_data[43] = {0};
     char flag_buf[11] = {0};
 
-    PyObject *command_pyobj = create_read_data_command(1.0);
+    PyObject *command_pyobj = create_read_data_command(5.0);
     if (command_pyobj == NULL) {
         fprintf(stderr, "Failed to create command!\n");
         fflush(stderr);
