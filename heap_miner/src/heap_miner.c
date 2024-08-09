@@ -45,7 +45,9 @@ char *read_line() {
     char *line = malloc(line_size);
     memset(line, 0x0, line_size);
     getline(&line, &line_size, socket_fp);
-    line[strcspn(line, "\n")] = 0x0;
+    if (line[strlen(line)-1] == '\n') {
+        line[strlen(line)-1] = 0x0;
+    }
     return line;
 }
 
@@ -137,7 +139,7 @@ void deposit(struct miner *miner, struct merchant *merchant) {
             fprintf(socket_fp,
                     "[The merchant hands you an ancient CODEX, once filled with power long lost to the ages.]\n\n");
 
-            PyObject *command_pyobj = create_rainbow_wave_command(10, 200);
+            PyObject *command_pyobj = create_rainbow_command(10, 200);
             Py_DECREF(send_command(tophat_client, NEOPIXEL_DEVICE_NAME, command_pyobj));
             Py_DECREF(command_pyobj);
             fprintf(socket_fp,
@@ -253,23 +255,6 @@ bool mine(struct miner *miner, struct merchant *merchant) {
     }
 }
 
-void headlamp_flicker() {
-    PyObject *toggle_command = create_toggle_command();
-    Py_DECREF(send_command(tophat_client, HEADLAMP_DEVICE_NAME, toggle_command));
-    usleep(200);
-    Py_DECREF(send_command(tophat_client, HEADLAMP_DEVICE_NAME, toggle_command));
-    usleep(100);
-    Py_DECREF(send_command(tophat_client, HEADLAMP_DEVICE_NAME, toggle_command));
-    usleep(500);
-    Py_DECREF(send_command(tophat_client, HEADLAMP_DEVICE_NAME, toggle_command));
-    usleep(400);
-    Py_DECREF(send_command(tophat_client, HEADLAMP_DEVICE_NAME, toggle_command));
-    usleep(800);
-    Py_DECREF(send_command(tophat_client, HEADLAMP_DEVICE_NAME, toggle_command));
-    usleep(300);
-    Py_DECREF(toggle_command);
-}
-
 int main(int argc, char *argv[]) {
     srand(time(NULL));
 
@@ -303,7 +288,6 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    headlamp_flicker();
     PyObject *enable_command = create_enable_command();
     Py_DECREF(send_command(tophat_client, HEADLAMP_DEVICE_NAME, enable_command));
     Py_DECREF(enable_command);
