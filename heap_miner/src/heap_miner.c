@@ -162,10 +162,6 @@ bool mine(struct miner *miner, struct merchant *merchant) {
         miner->depth += 1;
     }
 
-    PyObject *enable_command = create_enable_command();
-    Py_DECREF(send_command(tophat_client, HEADLAMP_DEVICE_NAME, enable_command));
-    Py_DECREF(enable_command);
-
     fprintf(socket_fp, "\n[You arrive at level %u of the mine.]\n", miner->depth);
 
     const char *demise;
@@ -263,10 +259,6 @@ bool mine(struct miner *miner, struct merchant *merchant) {
             break;
     }
 
-    PyObject *disable_command = create_disable_command();
-    Py_DECREF(send_command(tophat_client, HEADLAMP_DEVICE_NAME, disable_command));
-    Py_DECREF(disable_command);
-
     return survived;
 }
 
@@ -302,6 +294,10 @@ int main(int argc, char *argv[]) {
         Py_Finalize();
         return -1;
     }
+
+    PyObject *enable_command = create_enable_command();
+    Py_DECREF(send_command(tophat_client, HEADLAMP_DEVICE_NAME, enable_command));
+    Py_DECREF(enable_command);
 
     for (unsigned i = 0; i < NUM_MINERS; i++) {
         merchants[i] = malloc(sizeof(struct merchant));
@@ -348,6 +344,11 @@ int main(int argc, char *argv[]) {
                 fprintf(socket_fp, "[%s has perished.]\n\n", current_miner->name);
                 free(current_miner);
                 miners[current_miner_index] = NULL;
+
+                PyObject *disable_command = create_disable_command();
+                Py_DECREF(send_command(tophat_client, HEADLAMP_DEVICE_NAME, disable_command));
+                Py_DECREF(disable_command);
+
                 break;
             }
         }
