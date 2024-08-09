@@ -18,8 +18,7 @@ def handle_connection(client_socket: socket.socket,
             signal.signal(signal.SIGINT, signal.default_int_handler)
             print(f'Starting subprocess...')
             heap_miner_subprocess: subprocess.Popen = subprocess.Popen(
-                args=['/home/kali/PycharmProjects/tophat/src/tophat/hats/heap_miner/src/heap_miner',
-                      str(client_socket.fileno())],
+                args=['heap_miner', str(client_socket.fileno())],
                 close_fds=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
