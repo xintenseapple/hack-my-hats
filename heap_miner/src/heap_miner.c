@@ -162,6 +162,10 @@ bool mine(struct miner *miner, struct merchant *merchant) {
         miner->depth += 1;
     }
 
+    PyObject *enable_command = create_enable_command();
+    Py_DECREF(send_command(tophat_client, HEADLAMP_DEVICE_NAME, enable_command));
+    Py_DECREF(enable_command);
+
     fprintf(socket_fp, "\n[You arrive at level %u of the mine.]\n", miner->depth);
 
     const char *demise;
@@ -214,6 +218,7 @@ bool mine(struct miner *miner, struct merchant *merchant) {
     fprintf(socket_fp, "2) Return to the surface with your newfound wealth.\n");
     fprintf(socket_fp, "3) Put steel to stone and retrieve some riches!\n");
 
+    bool survived;
     unsigned proceed_choice;
     char *line = read_line();
     sscanf(line, "%u", &proceed_choice);
@@ -224,12 +229,14 @@ bool mine(struct miner *miner, struct merchant *merchant) {
             fprintf(socket_fp, "[You proceed cautiously...]\n");
             fprintf(socket_fp, "[and safely descend to the next level.]\n");
             miner->depth += 1;
-            return true;
+            survived = true;
+            break;
         case 2:
             fprintf(socket_fp, "[You climb back to the surface and head straight for the merchant.]\n");
             miner->depth = 0;
             deposit(miner, merchant);
-            return true;
+            survived = true;
+            break;
         case 3:
             fprintf(socket_fp, "[You proceed to swing your pickaxe at everything that shines before you.]\n");
             unsigned outcome_type = rand() % 2;
@@ -244,15 +251,23 @@ bool mine(struct miner *miner, struct merchant *merchant) {
                 } else {
                     fprintf(socket_fp, "[You are denser than the rocks around you, there is nothing to mine!]\n");
                 }
-                return true;
+                survived = true;
             } else {
                 fprintf(socket_fp, "[You %s to your demise!]\n", demise);
-                return false;
+                survived = false;
             }
+            break;
         default:
             fprintf(socket_fp, "[You dawdle too long and are crushed by a falling boulder. Unlucky.]\n");
-            return false;
+            survived = false;
+            break;
     }
+
+    PyObject *disable_command = create_disable_command();
+    Py_DECREF(send_command(tophat_client, HEADLAMP_DEVICE_NAME, disable_command));
+    Py_DECREF(disable_command);
+
+    return survived;
 }
 
 int main(int argc, char *argv[]) {
@@ -287,10 +302,6 @@ int main(int argc, char *argv[]) {
         Py_Finalize();
         return -1;
     }
-
-    PyObject *enable_command = create_enable_command();
-    Py_DECREF(send_command(tophat_client, HEADLAMP_DEVICE_NAME, enable_command));
-    Py_DECREF(enable_command);
 
     for (unsigned i = 0; i < NUM_MINERS; i++) {
         merchants[i] = malloc(sizeof(struct merchant));
