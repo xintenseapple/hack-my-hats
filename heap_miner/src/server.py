@@ -70,11 +70,7 @@ def main() -> int:
             print(f'Starting heap miner server...')
             try:
                 while True:
-                    client_socket: socket.socket
-                    client_addr: Tuple[str, int]
-                    client_socket, client_addr = server_socket.accept()
-                    with client_socket:
-                        pool.submit(handle_connection, client_socket, client_addr)
+                    pool.submit(handle_connection, *server_socket.accept())
 
             except KeyboardInterrupt:
                 print(f'Received keyboard interrupt, exiting...')
