@@ -6,17 +6,17 @@ import socket
 import subprocess
 from typing import Optional, Tuple
 
-CLIENT_TIMEOUT: float = 120.0
+CLIENT_TIMEOUT: float = 60.0
 
 
 def handle_connection(client_socket: socket.socket,
                       client_addr: Tuple[str, int]):
-    print(f'Handling connection for {client_addr}...')
+    print(f'Handling connection for {client_addr}...', flush=True)
     client_socket.set_inheritable(True)
     with client_socket:
         try:
             signal.signal(signal.SIGINT, signal.default_int_handler)
-            print(f'Starting subprocess...')
+            print(f'Starting subprocess...', flush=True)
             heap_miner_subprocess: subprocess.Popen = subprocess.Popen(
                 args=['heap_miner', str(client_socket.fileno())],
                 close_fds=True,
@@ -32,24 +32,24 @@ def handle_connection(client_socket: socket.socket,
             returncode: Optional[int] = heap_miner_subprocess.poll()
             if returncode is None:
                 heap_miner_subprocess.kill()
-                print(f'Killed heap_miner subprocess after timeout')
+                print(f'Killed heap_miner subprocess after timeout', flush=True)
 
             else:
-                print(f'Heap miner subprocess exited with code {returncode}')
-                print(f'stdout: {stdout}')
-                print(f'stderr: {stderr}')
+                print(f'Heap miner subprocess exited with code {returncode}', flush=True)
+                print(f'stdout: {stdout}', flush=True)
+                print(f'stderr: {stderr}', flush=True)
 
         except OSError as socket_error:
-            print(f'Socket error occurred: {socket_error}')
+            print(f'Socket error occurred: {socket_error}', flush=True)
 
         except KeyboardInterrupt:
             heap_miner_subprocess.kill()
-            print(f'Killed heap_miner subprocess after SIGINT')
+            print(f'Killed heap_miner subprocess after SIGINT', flush=True)
 
         finally:
             signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-    print(f'Handled connection!')
+    print(f'Handled connection!', flush=True)
 
 
 def ignore_sigint():
